@@ -6,6 +6,7 @@ pipeline {
         stage('Parando los servicios...') {
             steps {
                 bat '''
+                    cd ADJ-demo-c
                     docker compose -p adj-demo-c down || exit /b 0
                 '''
             }
@@ -38,6 +39,7 @@ pipeline {
         stage('Construyendo y desplegando servicios...') {
             steps {
                 bat '''
+                    cd ADJ-demo-c
                     docker compose up --build -d
                 '''
             }
