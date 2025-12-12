@@ -21,14 +21,17 @@ services:
         API_HOST: localhost
         API_PORT: 8081
         API_BASE: /adj-api
-        API_PROTOCOL: http
+        API_PROTOCOL: https
     container_name: adj-client
     ports:
       #PORT FORWARDING = MAPEO DE PUERTOS
       # PC:3001 <=========> CONTAINER:80 <==========> IMAGE:80
       - "3080:80"
+      - "3001:443"
     networks:
       - adj-net
+    volumes:
+      - certbot-conf:/etc/letsencrypt:ro
     depends_on:
       - database
 
@@ -44,11 +47,15 @@ services:
       DB_NAME: adj-demo
       DB_USER: root
       DB_PASS: root
-      SERVER_SSL_ENABLED: false
+      SERVER_SSL_ENABLED: true
+      SERVER_SSL_KEYSTORE: /etc/letsencrypt/live/localhost/keystore.p12
+      SERVER_SSL_KEYSTORE_PASS: changeit
     ports:
       - "8081:8080"
     networks:
       - adj-net
+    volumes:
+      - certbot-conf:/etc/letsencrypt:ro
     depends_on:
       - frontend
 
