@@ -45,10 +45,20 @@ pipeline {
             }
         }
 
+        // Generar certificados SSL si no existen
+        stage('Generando certificados SSL...') {
+            steps {
+                bat '''
+                    docker run --rm -v certbot-conf:/certs alpine sh -c "if [ ! -f /certs/live/localhost/keystore.p12 ]; then echo Generando certificados SSL...; apk add --no-cache openssl; mkdir -p /certs/live/localhost; cd /certs/live/localhost; openssl genrsa -out privkey.pem 2048; openssl req -new -x509 -key privkey.pem -out fullchain.pem -days 365 -subj '/CN=localhost'; openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem -out keystore.p12 -name localhost -password pass:changeit -noiter -nomaciter; echo Certificados generados exitosamente; else echo Los certificados ya existen, omitiendo generacion; fi"
+                '''
+            }
+        }
+
         // Construir y levantar los servicios
         stage('Construyendo y desplegando servicios...') {
             steps {
                 bat '''
+                    cd ADJ-demo-c
                     docker compose up --build -d
                 '''
             }
