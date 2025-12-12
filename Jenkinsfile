@@ -68,7 +68,13 @@ pipeline {
             steps {
                 bat '''
                     cd ADJ-demo-c
-                    docker compose up --build -d
+                    echo Verificando Docker...
+                    docker version || (echo ERROR: Docker no esta disponible && exit 1)
+                    echo Docker disponible, construyendo servicios...
+                    docker compose up --build -d || (echo ERROR al levantar servicios && docker compose logs && exit 1)
+                    echo Esperando que los servicios esten listos...
+                    timeout /t 30 /nobreak
+                    docker compose ps
                 '''
             }
         }
